@@ -56,7 +56,8 @@ public class CanvasView extends View {
         }
         if(networkManager == null)
         {
-            NetworkManager.Init("88.87.1.226","Miro");
+            NetworkManager.Init("Miro","88.87.1.226");
+            networkManager = NetworkManager.getInstance();
         }
 
         System.out.println("here 0");
@@ -131,11 +132,13 @@ public class CanvasView extends View {
 
 
                 HashMap<String, String> map = new HashMap<>();
-                map.put("ddz1","ddz2");
-                String response = networkManager.performPostCall("http://88.87.1.226:1337/");
+                map.put("name","miro");
+//                String response = networkManager.performPostCall("http://88.87.1.226:1337/");
+//                String response = networkManager.performPostCall("1337", map);
+                networkManager.askForPlayers();
 
 //                String response = NetworkManager.performPostCall("http://192.168.0.100:1337/");
-                System.out.println(response);
+//                System.out.println(response);
 
 
                 synchronized (gamePlay)

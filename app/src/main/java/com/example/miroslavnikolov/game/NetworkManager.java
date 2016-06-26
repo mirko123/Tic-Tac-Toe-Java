@@ -44,7 +44,7 @@ public class NetworkManager {
             instance = new NetworkManager(name, ip);
     }
 
-    public NetworkManager getInstance() { return instance; }
+    public static NetworkManager getInstance() { return instance; }
 
 
 
@@ -99,14 +99,15 @@ public class NetworkManager {
     }
 
 
-    public void askForPlayers(String requestURL)
+    public void askForPlayers()
     {
 //        HashMap<String, String> params = new HashMap<>();
+//        String response = performPostCall("1337");
 
 
         JSONObject obj = null;
         try {
-            obj = new JSONObject(performPostCall(requestURL));
+            obj = new JSONObject(performPostCall("1337"));
         } catch (JSONException e) {
             e.printStackTrace();
         }
@@ -124,16 +125,21 @@ public class NetworkManager {
         {
             try {
                 String name = arr.getJSONObject(i).getString("name");
-                String ip = arr.getJSONObject(i).getString("IP");
+                String ip = arr.getJSONObject(i).getString("ip");
                 String port = arr.getJSONObject(i).getString("port");
                 PlayerInNetwork pl = new PlayerInNetwork(name, ip, port);
 
-                if(name != this.name) playersInNetwork.put(name, pl);
+                if(!name.equals(this.name)) playersInNetwork.put(name, pl);
 
 
             } catch (JSONException e) {
                 e.printStackTrace();
             }
+        }
+
+        for (String  str: playersInNetwork.keySet()) {
+            PlayerInNetwork player = playersInNetwork.get(str);
+            System.out.println(str + ": " + player.name + " " + player.IP + " " + player.port);
         }
 
     }
@@ -197,6 +203,7 @@ public class NetworkManager {
         } catch (Exception e) {
             e.printStackTrace();
         }
+//        System.out.println(response);
         return response;
     }
 
