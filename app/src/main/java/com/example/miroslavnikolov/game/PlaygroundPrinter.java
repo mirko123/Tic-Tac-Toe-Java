@@ -22,6 +22,7 @@ public class PlaygroundPrinter {
 
     Paint rPaint;
     Paint gPaint;
+    Paint grayPaint;
 
     int rows, cols;
     int width;
@@ -53,6 +54,9 @@ public class PlaygroundPrinter {
 //        rPaint.setStrokeWidth(10);
 
         rPaint.setColor(0xFFFF0000);
+
+        grayPaint = new Paint();
+        grayPaint.setColor(0x7F7F7F7F);
 
         gPaint = new Paint();
         gPaint.setAntiAlias(true);
@@ -139,6 +143,26 @@ public class PlaygroundPrinter {
 
             canvas.drawLine(startX, startY, endX, endY, gPaint);
         }
+    }
+    public void PrintBigField(int row, int col)
+    {
+//        if(playground.getBigField(row,col) == Playground.Field.Circle)
+//        {
+//
+//        }
+//        else if(playground.getBigField(row,col) == Playground.Field.X)
+//        {
+//
+//        }
+        int r = row - row%3;
+        int c = col - col%3;
+
+        float startX = c*fieldWidth;
+        float startY = r*fieldHeight;
+        float endX = (c + 3)*fieldWidth;
+        float endY = (r + 3)*fieldHeight;
+
+        canvas.drawRect(startX, startY, endX, endY, grayPaint);
     }
 
     public int PositionInCol(float x)

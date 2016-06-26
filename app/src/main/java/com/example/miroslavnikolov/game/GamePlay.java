@@ -12,6 +12,7 @@ public class GamePlay implements Runnable {
     public IPlayer secondPlayer;
     private IPlayer currentPlayer;
 
+
     private static volatile GamePlay instance;
 
     public static void Init(Playground playground, IPlayer firstPlayer)
@@ -35,8 +36,11 @@ public class GamePlay implements Runnable {
     {
         this.firstPlayer = firstPlayer;
         this.secondPlayer = new Player(Playground.Field.X);
-        this.currentPlayer = new Player();
+//        this.currentPlayer = new Player();
+        this.currentPlayer = firstPlayer;
         this.playground = playground;
+
+
     }
 
     public void setFirstPlayer()
@@ -63,8 +67,54 @@ public class GamePlay implements Runnable {
 
         System.out.println("here          0");
 
-        for (int i =0; i < 20; i++){
-            IPlayer player = NextPlayer();
+//        for (int i =0; i < 20; i++){
+//            IPlayer player = NextPlayer();
+//            type = player.GetType();
+//
+//            System.out.println("here          1");
+//            synchronized (this) {
+//                try {
+//                    System.out.println("here          2");
+//                    System.out.println(player.GetType());
+//                    this.wait(); // Will block until lock.notify() is called on another thread.
+//                    Position position = player.ReturnPosition();
+//                    System.out.println("here          2.1");
+//
+//
+//                    System.out.println(position.row);
+//                    System.out.println(position.col);
+//                    System.out.println(type);
+//                    playground.setField(position.row,position.col, type);
+//
+//                } catch (InterruptedException e) {
+//
+//                    System.out.println("here          3");
+//                    e.printStackTrace();
+//                }
+//
+//                System.out.println("here          4");
+//            }
+//            System.out.println("here          5");
+//
+//
+//            System.out.println("--------------------");
+//
+//            System.out.println("here          6");
+//
+////            if(haveWinner())
+////            {
+////                System.out.println("===================================");
+////                System.out.println("===================================");
+////
+////            }
+//
+//        }
+        System.out.println("here          7");
+
+
+        IPlayer player = NextPlayer();
+        while(!haveWinner())
+        {
             type = player.GetType();
 
             System.out.println("here          1");
@@ -74,6 +124,15 @@ public class GamePlay implements Runnable {
                     System.out.println(player.GetType());
                     this.wait(); // Will block until lock.notify() is called on another thread.
                     Position position = player.ReturnPosition();
+
+//                    if(playground.getField(position.row, position.col) != Playground.Field.Free
+//                            || playground.getBigField(position.row/3, position.col/3) != Playground.Field.Free)
+//                    {
+//                        System.out.println("=================================");
+//                        System.out.println("=================================");
+//                        continue;
+//                    }
+                    System.out.println("here          2.1");
 
 
                     System.out.println(position.row);
@@ -89,20 +148,11 @@ public class GamePlay implements Runnable {
 
                 System.out.println("here          4");
             }
+
+
             System.out.println("here          5");
-
-
-
-
-            System.out.println("here          6");
-
+            player = NextPlayer();
         }
-        System.out.println("here          7");
-
-//        while(!haveWinner())
-//        {
-//            IPlayer player = NextPlayer();
-//        }
     }
     private IPlayer NextPlayer()
     {
@@ -115,12 +165,60 @@ public class GamePlay implements Runnable {
         {
             currentPlayer = firstPlayer;
         }
+
+
         return currentPlayer;
     }
 
     private boolean haveWinner() {
+        Playground.Field value = Playground.Field.X;
+        for (int i = 0; i < 2; i ++)
+        {
+            for (int r = 0; r < playground.getRows() / 3 ; r++)
+            {
+                if (playground.getBigField(r, 0) == value &&
+                        playground.getBigField(r, 1) == value &&
+                        playground.getBigField(r, 2) == value
+                        )
+                {
+                    return true;
+                }
+            }
+
+            for (int c = 0; c < playground.getCols() / 3 ; c++)
+            {
+                if(playground.getBigField(0, c) == value &&
+                        playground.getBigField(0 + 1, c) == value &&
+                        playground.getBigField(0 + 2, c) == value)
+                {
+                    return true;
+                }
+            }
+
+            if(playground.getBigField(1, 1) == value)
+            {
+                if( (playground.getBigField(0,0) == value &&
+                        playground.getBigField(2,2) == value) ||
+
+                        playground.getBigField(0,2) == value &&
+                                playground.getBigField(2,0) == value)
+                {
+                    return true;
+                }
+            }
+
+            value = Playground.Field.Circle;
+        }
+
+
+
         return false;
     }
+//    private boolean canMove()
+//    {
+//        return true;
+//    }
+
 
     @Override
     public void run() {

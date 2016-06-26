@@ -23,6 +23,7 @@ public class CanvasView extends View {
     PlaygroundPrinter printer;
     private static Playground playground;
     private static IPlayer player1;
+    private static NetworkManager networkManager;
     float Mx1,My1;
     float x,y;
 
@@ -52,6 +53,10 @@ public class CanvasView extends View {
             thread = new Thread(gamePlay);
 //            gamePlay.run();
             thread.start();
+        }
+        if(networkManager == null)
+        {
+            NetworkManager.Init("88.87.1.226","Miro");
         }
 
         System.out.println("here 0");
@@ -127,7 +132,10 @@ public class CanvasView extends View {
 
                 HashMap<String, String> map = new HashMap<>();
                 map.put("ddz1","ddz2");
-                NetworkManager.performPostCall("http://88.87.1.226:1337/");
+                String response = networkManager.performPostCall("http://88.87.1.226:1337/");
+
+//                String response = NetworkManager.performPostCall("http://192.168.0.100:1337/");
+                System.out.println(response);
 
 
                 synchronized (gamePlay)

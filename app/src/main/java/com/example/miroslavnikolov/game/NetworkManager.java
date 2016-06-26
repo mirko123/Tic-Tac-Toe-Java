@@ -2,6 +2,10 @@ package com.example.miroslavnikolov.game;
 
 import android.os.StrictMode;
 
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
+
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
 import java.io.DataOutputStream;
@@ -23,14 +27,21 @@ import javax.net.ssl.HttpsURLConnection;
  */
 public class NetworkManager {
     private static NetworkManager instance;
+    public HashMap<String, PlayerInNetwork> playersInNetwork;
+    private String name;
+    private String ip;
 
-    private NetworkManager() {
 
+    private NetworkManager(String name, String ip) {
+        playersInNetwork = new HashMap<String, PlayerInNetwork>();
+        this.name = name;
+        this.ip = ip;
     }
 
-    public static void Init()
+    public static void Init(String name, String ip)
     {
-        if(instance == null) instance = new NetworkManager();
+        if(instance == null)
+            instance = new NetworkManager(name, ip);
     }
 
     public NetworkManager getInstance() { return instance; }
@@ -83,10 +94,61 @@ public class NetworkManager {
         clientSocket.close();
     }
 
-    public static String performPostCall(String requestURL) {
+    public String performPostCall(String requestURL) {
         return performPostCall(requestURL, null);
     }
-    public static String performPostCall(String requestURL, HashMap<String, String> postDataParams) {
+
+
+    public void askForPlayers(String requestURL)
+    {
+//        HashMap<String, String> params = new HashMap<>();
+
+
+        JSONObject obj = null;
+        try {
+            obj = new JSONObject(performPostCall(requestURL));
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
+
+
+        JSONArray arr = null;
+        try {
+            arr = obj.getJSONArray("players");
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
+
+
+        for (int i = 0; i < arr.length(); i++)
+        {
+            try {
+                String name = arr.getJSONObject(i).getString("name");
+                String ip = arr.getJSONObject(i).getString("IP");
+                String port = arr.getJSONObject(i).getString("port");
+                PlayerInNetwork pl = new PlayerInNetwork(name, ip, port);
+
+                if(name != this.name) playersInNetwork.put(name, pl);
+
+
+            } catch (JSONException e) {
+                e.printStackTrace();
+            }
+        }
+
+    }
+
+    public GamePlay.Position askForPosition()
+    {
+        GamePlay.Position position = new GamePlay.Position(0, 0);
+
+//        HashMap<>
+        return position;
+    }
+    public String performPostCall(String port, HashMap<String, String> postDataParams) {
+
+        String requestURL = "http://" + ip + ":" + port + "/";
+
 
         StrictMode.ThreadPolicy policy = new StrictMode.ThreadPolicy.Builder().permitAll().build();
         StrictMode.setThreadPolicy(policy);
@@ -117,6 +179,9 @@ public class NetworkManager {
             writer.flush();
             writer.close();
             os.close();
+
+//            System.out.println(conn.get);
+
             int responseCode = conn.getResponseCode();
 
             if (responseCode == HttpsURLConnection.HTTP_OK) {
@@ -132,7 +197,6 @@ public class NetworkManager {
         } catch (Exception e) {
             e.printStackTrace();
         }
-
         return response;
     }
 
@@ -151,5 +215,19 @@ public class NetworkManager {
         }
 
         return result.toString();
+    }
+
+    private class PlayerInNetwork
+    {
+        public String port;
+        public String IP;
+        public String name;
+
+        public PlayerInNetwork(String name, String IP, String port)
+        {
+            this.name = name;
+            this.IP = IP;
+            this.port = port;
+        }
     }
 }

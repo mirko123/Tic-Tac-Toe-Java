@@ -1,10 +1,5 @@
 package com.example.miroslavnikolov.game;
 
-import android.util.Pair;
-
-import java.util.ArrayList;
-import java.util.List;
-
 /**
  * Created by miroslavnikolov on 22.05.16.
  */
@@ -15,8 +10,8 @@ public class Playground {
     }
 
     PlaygroundPrinter printer;
-    Player firstPlayer;
-    Player secondPlayer;
+//    Player firstPlayer;
+//    Player secondPlayer;
 
 
     private int rows;
@@ -24,6 +19,7 @@ public class Playground {
 
 
     private Field[][] matrix;
+    private Field smallMatrix[][];
 
 
     public static enum Field
@@ -55,34 +51,177 @@ public class Playground {
 
     public void setMatrix(int rows, int cols) {
         matrix = new Field[rows][cols];
+        smallMatrix = new Field[rows/3][cols/3];
+
         for (int row = 0; row < rows; row++)
         {
             for (int col = 0; col < cols; col++)
             {
+                setBigField(row,col,Field.Free);
                 setField(row,col,Field.Free);
             }
         }
+
+//        for (int row = 0; row < rows/3; row++)
+//        {
+//            for (int col = 0; col < cols/3; col++)
+//            {
+//
+//            }
+//        }
     }
 
     public Field getField(int row, int col) { return  this.matrix[row][col]; }
+    public Field getBigField(int row, int col) { return  this.smallMatrix[row][col]; }
 
     public void setField(int row, int col, Field value)
     {
 //        if(matrix[row][col] != Field.Free)
 //            throw new IllegalArgumentException("Want to set second time field");
 
+        if(smallMatrix[row/3][col/3] == Field.X || smallMatrix[row/3][col/3] == Field.Circle)
+        {
+            return;
+        }
+
         matrix[row][col] = value;
         if (value == Field.X) {
-            firstPlayer.AddField(row, col);
+//            firstPlayer.AddField(row, col);
             printer.PrintField(row,col);
         }
         else if(value == Field.Circle) {
-            secondPlayer.AddField(row, col);
+//            secondPlayer.AddField(row, col);
             printer.PrintField(row,col);
         }
 
-
+        setBigField(row,col,value);
     }
+    public void setBigField(int row, int col, Field value)
+    {
+        if(value == Field.Free)
+        {
+            smallMatrix[row/3][col/3] = value;
+        }
+        else if(smallMatrix[row/3][col/3] == Field.Free)
+        {
+//            if(row/3 == 0 && col/3 == 0)
+//            {
+//                if(getField(row + 1,col) == value && getField(row + 2,col) == value ||
+//                        getField(row,col + 1) == value && getField(row,col + 2) == value ||
+//                        getField(row + 1, col + 1) == value && getField(row + 2,col + 2) == value)
+//                {
+//                    smallMatrix[row/3][col/3] = value;
+//                }
+//            }
+//            else if(row/3 == 0 && col/3 == 1)
+//            {
+//
+//            }
+
+//            for (int r = 0; r < rows; r+=3)
+//            {
+//                for (int c = 0; c < cols; c++)
+//                {
+//                    if(getField(row,col) == value && getField(row + 1, col) == value && getField(row + 2, col) == value)
+//                    {
+//
+//                    }
+//                }
+//            }
+
+            boolean check = false;
+            int nRow = row - row%3;
+            int nCol = col - col%3;
+            for (int r = nRow; r < nRow + 3 ; r++)
+            {
+                if (getField(r, nCol) == value &&
+                        getField(r, nCol + 1) == value &&
+                        getField(r, nCol + 2) == value
+                        )
+                {
+                    smallMatrix[row/3][col/3] = value;
+                    printer.PrintBigField(row, col);
+                    return;
+                }
+            }
+
+            for (int c = nCol; c < nCol + 3 ; c++)
+            {
+                if(getField(nRow, c) == value &&
+                        getField(nRow + 1, c) == value &&
+                        getField(nRow + 2, c) == value)
+                {
+                    smallMatrix[row/3][col/3] = value;
+                    printer.PrintBigField(row, col);
+                    return;
+                }
+            }
+
+            if(getField(nRow + 1, nCol + 1) == value)
+            {
+                if( (getField(nRow,nCol) == value &&
+                        getField(nRow + 2, nCol + 2) == value) ||
+
+                        getField(nRow, nCol + 2) == value &&
+                        getField(nRow + 2, nCol) == value)
+                {
+                    smallMatrix[row/3][col/3] = value;
+                    printer.PrintBigField(row, col);
+                }
+            }
+        }
+//        smallMatrix[row][col] = value;
+    }
+
+    //    private boolean CheckField(int row, int col,Field matrix[][])
+//    {
+//        Field value = Field.Circle;
+//        for (int i = 0; i < 2; i++)
+//        {
+//
+//            for (int r = row; r < row + 3 ; r++)
+//            {
+//                if (getField(r, col) == value &&
+//                        getField(r, col + 1) == value &&
+//                        getField(r, col + 2) == value
+//                        )
+//                {
+//                    smallMatrix[row/3][col/3] = value;
+//                    printer.PrintBigField(row, col);
+//                    return true;
+//                }
+//            }
+//
+//            for (int c = col; c < col + 3 ; c++)
+//            {
+//                if(getField(row, c) == value &&
+//                        getField(row + 1, c) == value &&
+//                        getField(row + 2, c) == value)
+//                {
+//                    smallMatrix[row/3][col/3] = value;
+//                    printer.PrintBigField(row, col);
+//                    return true;
+//                }
+//            }
+//
+//            if(getField(row + 1, col + 1) == value)
+//            {
+//                if( (getField(row,col) == value &&
+//                        getField(row + 2, col + 2) == value) ||
+//
+//                        getField(row, col + 2) == value &&
+//                                getField(row + 2, col) == value)
+//                {
+//                    smallMatrix[row/3][col/3] = value;
+//                    printer.PrintBigField(row, col);
+//                    return true;
+//                }
+//            }
+//            value = Field.X;
+//
+//        }
+//        return false;
+//    }
 
     public Playground(int rows, int cols) {
         setRows(rows);
@@ -90,8 +229,8 @@ public class Playground {
 
         setMatrix(rows, cols);
 
-        firstPlayer = new Player("First player", Field.X);
-        secondPlayer = new Player("Second player", Field.Circle);
+//        firstPlayer = new Player("First player", Field.X);
+//        secondPlayer = new Player("Second player", Field.Circle);
     }
 
     public Playground(int rows, int cols, PlaygroundPrinter printer) {
@@ -100,24 +239,24 @@ public class Playground {
         printer.setPlayground(this);
     }
 
-    private class Player
-    {
-        private final Field type;
-        List<Pair<Integer, Integer>> fields;
-
-        public void AddField(int row, int col)
-        {
-            Pair<Integer, Integer> location = new Pair<>(row, col);
-            fields.add(location);
-        }
-
-        Player(String name, Field type)
-        {
-            this.type = type;
-            fields = new ArrayList<Pair<Integer, Integer>>();
-        }
-
-    }
+//    private class Player
+//    {
+//        private final Field type;
+//        List<Pair<Integer, Integer>> fields;
+//
+//        public void AddField(int row, int col)
+//        {
+//            Pair<Integer, Integer> location = new Pair<>(row, col);
+//            fields.add(location);
+//        }
+//
+//        Player(String name, Field type)
+//        {
+//            this.type = type;
+//            fields = new ArrayList<Pair<Integer, Integer>>();
+//        }
+//
+//    }
 
 //    public void PrintMatrix(Canvas canvas)
 //    {
