@@ -135,7 +135,7 @@ public class CanvasView extends View {
                 map.put("name","miro");
 //                String response = networkManager.performPostCall("http://88.87.1.226:1337/");
 //                String response = networkManager.performPostCall("1337", map);
-                networkManager.askForPlayers();
+//                networkManager.askForPlayers();
 
 //                String response = NetworkManager.performPostCall("http://192.168.0.100:1337/");
 //                System.out.println(response);

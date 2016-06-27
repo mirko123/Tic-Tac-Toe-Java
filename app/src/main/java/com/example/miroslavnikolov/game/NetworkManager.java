@@ -17,7 +17,9 @@ import java.net.HttpURLConnection;
 import java.net.Socket;
 import java.net.URL;
 import java.net.URLEncoder;
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 import javax.net.ssl.HttpsURLConnection;
@@ -99,7 +101,7 @@ public class NetworkManager {
     }
 
 
-    public void askForPlayers()
+    public List<String> askForPlayers()
     {
 //        HashMap<String, String> params = new HashMap<>();
 //        String response = performPostCall("1337");
@@ -137,11 +139,16 @@ public class NetworkManager {
             }
         }
 
+        List<String> players = new ArrayList<>();
+
         for (String  str: playersInNetwork.keySet()) {
             PlayerInNetwork player = playersInNetwork.get(str);
             System.out.println(str + ": " + player.name + " " + player.IP + " " + player.port);
+
+            players.add(player.name);
         }
 
+        return players;
     }
 
     public GamePlay.Position askForPosition()
