@@ -148,12 +148,6 @@ public class ListActivity extends AppCompatActivity {
                 viewHolder.button = (Button) convertView.findViewById(R.id.list_item_btn);
                 convertView.setTag(viewHolder);
             }
-            final NetworkManager2.PlayerInNetwork player = getItem(position);
-            if(player.isInGame)
-            {
-                convertView.setBackgroundColor(Color.RED);
-                mainViewholder.button.setEnabled(false);
-            }
 
 
 
@@ -168,6 +162,15 @@ public class ListActivity extends AppCompatActivity {
 
                 }
             });
+
+
+            final NetworkManager2.PlayerInNetwork player = getItem(position);
+            if(player.isInGame)
+            {
+                convertView.setBackgroundColor(Color.RED);
+                mainViewholder.button.setEnabled(false);
+            }
+
             String titleText = "Player " + player.name + " with IP: " + player.IP;
             mainViewholder.title.setText(titleText);
 
