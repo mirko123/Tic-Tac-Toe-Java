@@ -35,7 +35,7 @@ public class NetworkManager {
 
 
     private NetworkManager(String name, String ip) {
-        playersInNetwork = new HashMap<String, PlayerInNetwork>();
+        playersInNetwork = new HashMap<String, PlayerInNetwork>(); // KEY is IP
         this.name = name;
         this.ip = ip;
     }
@@ -96,20 +96,18 @@ public class NetworkManager {
         clientSocket.close();
     }
 
-    public String performPostCall(String requestURL) {
-        return performPostCall(requestURL, null);
-    }
 
 
     public List<String> askForPlayers()
     {
-//        HashMap<String, String> params = new HashMap<>();
+        HashMap<String, String> params = new HashMap<>();
+        params.put("name", this.name);
 //        String response = performPostCall("1337");
 
 
         JSONObject obj = null;
         try {
-            obj = new JSONObject(performPostCall("1337"));
+            obj = new JSONObject(performPostCall("1337",params));
         } catch (JSONException e) {
             e.printStackTrace();
         }
@@ -131,7 +129,8 @@ public class NetworkManager {
                 String port = arr.getJSONObject(i).getString("port");
                 PlayerInNetwork pl = new PlayerInNetwork(name, ip, port);
 
-                if(!name.equals(this.name)) playersInNetwork.put(name, pl);
+//                if(!name.equals(this.name)) playersInNetwork.put(name, pl);
+                playersInNetwork.put(ip, pl);
 
 
             } catch (JSONException e) {
@@ -145,10 +144,28 @@ public class NetworkManager {
             PlayerInNetwork player = playersInNetwork.get(str);
             System.out.println(str + ": " + player.name + " " + player.IP + " " + player.port);
 
-            players.add(player.name);
+            players.add("Player " + player.name + " with IP: " + player.IP);
         }
 
         return players;
+    }
+
+    public void sendClickPosition(int row, int col)
+    {
+
+    }
+
+    public boolean askPlayerForGame(String name)
+    {
+        boolean accept = false;
+
+        PlayerInNetwork player = playersInNetwork.get(name);
+        String response = performPostCall(player.IP, player.port);
+
+        System.out.printf("--------------------");
+        System.out.println(response);
+        System.out.printf("--------------------");
+        return accept;
     }
 
     public GamePlay.Position askForPosition()
@@ -158,9 +175,25 @@ public class NetworkManager {
 //        HashMap<>
         return position;
     }
-    public String performPostCall(String port, HashMap<String, String> postDataParams) {
 
-        String requestURL = "http://" + ip + ":" + port + "/";
+
+
+//    public String performPostCall(String requestURL) {
+//        return performPostCall(requestURL, null);
+//    }
+
+    public String performPostCall(String port, HashMap<String, String> postDataParams) {
+        return performPostCall(null, port, postDataParams);
+    }
+
+    public String performPostCall(String IP, String port) {
+        return performPostCall(IP, port, null);
+    }
+    public String performPostCall(String IP, String port, HashMap<String, String> postDataParams) {
+
+        if(IP == null)
+            IP = this.ip;
+        String requestURL = "http://" + IP + ":" + port + "/";
 
 
         StrictMode.ThreadPolicy policy = new StrictMode.ThreadPolicy.Builder().permitAll().build();
@@ -230,6 +263,11 @@ public class NetworkManager {
 
         return result.toString();
     }
+
+//    public String getPort()
+//    {
+//
+//    }
 
     private class PlayerInNetwork
     {

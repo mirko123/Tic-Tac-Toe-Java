@@ -1,14 +1,15 @@
 package com.example.miroslavnikolov.game;
 
 import android.content.Context;
+import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.Canvas;
 import android.graphics.Paint;
 import android.graphics.Path;
+import android.os.Looper;
 import android.view.MotionEvent;
 import android.view.View;
-
-import java.util.HashMap;
+import android.widget.Toast;
 
 //import java.util.Set;
 
@@ -43,9 +44,9 @@ public class CanvasView extends View {
         mPath = new Path();
         mBitmapPaint = new Paint(Paint.DITHER_FLAG);
         if(playground == null) this.playground = new Playground(9, 9);
-        if(player1 == null) this.player1 = new Player();
+        if(player1 == null) this.player1 = new Player("Miro");
 
-        GamePlay.Init(playground, player1);
+        GamePlay.Init(playground, player1, this);
 
         if(gamePlay == null) gamePlay = GamePlay.getInstance();
         if(thread == null)
@@ -131,8 +132,8 @@ public class CanvasView extends View {
 //                }
 
 
-                HashMap<String, String> map = new HashMap<>();
-                map.put("name","miro");
+//                HashMap<String, String> map = new HashMap<>();
+//                map.put("name","miro");
 //                String response = networkManager.performPostCall("http://88.87.1.226:1337/");
 //                String response = networkManager.performPostCall("1337", map);
 //                networkManager.askForPlayers();
@@ -150,6 +151,43 @@ public class CanvasView extends View {
 
         return true;
 
+    }
+
+    public void winnerEvent(String text)
+    {
+        Looper.prepare();
+//        MessageQueue queue = Looper.myQueue();
+//        queue.addIdleHandler(new MessageQueue.IdleHandler() {
+//            int mReqCount = 0;
+//
+//            @Override
+//            public boolean queueIdle() {
+//                if (++mReqCount == 2) {
+//                    Looper.myLooper().quit();
+//                    return false;
+//                } else
+//                    return true;
+//            }
+//        });
+
+
+
+        Toast.makeText(this.getContext(), text,Toast.LENGTH_LONG).show();
+
+        Intent intent = new Intent(this.getContext(), ListActivity.class);
+        this.getContext().startActivity(intent);
+//        finish();
+
+        Looper.loop();
+    }
+
+    public void alertForBadClick()
+    {
+        Looper.prepare();
+
+        String text = "bad click";
+        Toast.makeText(this.getContext(), text,Toast.LENGTH_LONG).show();
+        Looper.loop();
     }
 
 

@@ -9,11 +9,12 @@ public class Player implements IPlayer {
     public GamePlay.Position lastPosition;
     public Thread thread;
 
-    public Player() {
-        this(Playground.Field.Circle);
+    public Player(String name) {
+        this(Playground.Field.Circle, name);
     }
-    public Player(Playground.Field field) {
+    public Player(Playground.Field field, String name) {
         this.type = field;
+        this.name = name;
         lastPosition = new GamePlay.Position(0,0);
     }
 

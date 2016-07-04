@@ -11,19 +11,20 @@ public class GamePlay implements Runnable {
     public IPlayer firstPlayer;
     public IPlayer secondPlayer;
     private IPlayer currentPlayer;
+    private CanvasView canvasView;
 
 
     private static volatile GamePlay instance;
 
-    public static void Init(Playground playground, IPlayer firstPlayer)
+    public static void Init(Playground playground, IPlayer firstPlayer, CanvasView canvasView)
     {
-        Init(playground,firstPlayer, new Player(Playground.Field.X) );
+        Init(playground,firstPlayer, new Player(Playground.Field.X, "Second Player"), canvasView);
     }
-    public static void Init(Playground playground, IPlayer firstPlayer, IPlayer secondPlayer)
+    public static void Init(Playground playground, IPlayer firstPlayer, IPlayer secondPlayer, CanvasView canvasView)
     {
         if(instance == null)
         {
-            instance = new GamePlay(playground, firstPlayer, secondPlayer);
+            instance = new GamePlay(playground, firstPlayer, secondPlayer, canvasView);
         }
     }
 
@@ -32,10 +33,11 @@ public class GamePlay implements Runnable {
         return instance;
     }
 
-    private GamePlay(Playground playground, IPlayer firstPlayer, IPlayer secondPlayer)
+    private GamePlay(Playground playground, IPlayer firstPlayer, IPlayer secondPlayer, CanvasView canvasView)
     {
+        this.canvasView = canvasView;
         this.firstPlayer = firstPlayer;
-        this.secondPlayer = new Player(Playground.Field.X);
+        this.secondPlayer = new Player(Playground.Field.X, "Second Player");
 //        this.currentPlayer = new Player();
         this.currentPlayer = firstPlayer;
         this.playground = playground;
@@ -112,18 +114,23 @@ public class GamePlay implements Runnable {
         System.out.println("here          7");
 
 
-        IPlayer player = NextPlayer();
+//        IPlayer player = NextPlayer();
+        currentPlayer = NextPlayer();
+
         while(!haveWinner())
         {
-            type = player.GetType();
+//            type = player.GetType();
+            type = currentPlayer.GetType();
 
             System.out.println("here          1");
             synchronized (this) {
                 try {
                     System.out.println("here          2");
-                    System.out.println(player.GetType());
+//                    System.out.println(player.GetType());
+                    System.out.println(currentPlayer.GetType());
                     this.wait(); // Will block until lock.notify() is called on another thread.
-                    Position position = player.ReturnPosition();
+//                    Position position = player.ReturnPosition();
+                    Position position = currentPlayer.ReturnPosition();
 
 //                    if(playground.getField(position.row, position.col) != Playground.Field.Free
 //                            || playground.getBigField(position.row/3, position.col/3) != Playground.Field.Free)
@@ -138,7 +145,13 @@ public class GamePlay implements Runnable {
                     System.out.println(position.row);
                     System.out.println(position.col);
                     System.out.println(type);
-                    playground.setField(position.row,position.col, type);
+                    boolean isGood = playground.setField(position.row,position.col, type)
+                            && canMove(position.row, position.col);
+//                    if(!isGood)
+//                    {
+//                        canvasView.alertForBadClick();
+//                        continue;
+//                    }
 
                 } catch (InterruptedException e) {
 
@@ -151,8 +164,16 @@ public class GamePlay implements Runnable {
 
 
             System.out.println("here          5");
-            player = NextPlayer();
+//            player = NextPlayer();
+            currentPlayer = NextPlayer();
         }
+//        if(player.GetName() == firstPlayer.GetName())
+//        {
+//            canvasView.winnerEvent("You WIN");
+//        }
+//        if(player == firstPlayer) canvasView.winnerEvent(secondPlayer.GetName() + " WIN");
+        if(currentPlayer == firstPlayer) canvasView.winnerEvent(secondPlayer.GetName() + " WIN");
+        else canvasView.winnerEvent(firstPlayer.GetName() + " WIN");
     }
     private IPlayer NextPlayer()
     {
@@ -168,6 +189,55 @@ public class GamePlay implements Runnable {
 
 
         return currentPlayer;
+    }
+
+    private boolean canMove(int row, int col)
+    {
+        if(!playground.canMove(row, col))
+            return false;
+
+
+        int rowInBigField = row/3;
+        int colInBigField = col/3;
+        if(playground.getBigField(rowInBigField, colInBigField) != Playground.Field.Free)
+            return true;
+
+
+        int rowOnBeforePlyaer;
+        int colOnBeforePlayer;
+
+        if(currentPlayer == firstPlayer)
+        {
+            rowOnBeforePlyaer = secondPlayer.ReturnPosition().row;
+            colOnBeforePlayer = secondPlayer.ReturnPosition().col;
+        }
+        else
+        {
+            rowOnBeforePlyaer = firstPlayer.ReturnPosition().row;
+            colOnBeforePlayer = firstPlayer.ReturnPosition().col;
+        }
+
+        rowOnBeforePlyaer = rowOnBeforePlyaer%3;
+        colOnBeforePlayer = colOnBeforePlayer%3;
+
+
+        boolean check = true;
+        for (int r = row - row%3; r < row - row%3 + 3 && check; r++) {
+            for (int c = col - col%3; c < col - col%3 + 3 && check; c++) {
+                if(playground.getField(r, c) == Playground.Field.Free )
+                {
+                    check = false;
+                }
+            }
+        }
+        if(check) return true;
+
+        if(rowInBigField == rowOnBeforePlyaer && colInBigField == colOnBeforePlayer)
+        {
+            return true;
+        }
+
+        return false;
     }
 
     private boolean haveWinner() {

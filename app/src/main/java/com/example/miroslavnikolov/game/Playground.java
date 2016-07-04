@@ -74,14 +74,22 @@ public class Playground {
     public Field getField(int row, int col) { return  this.matrix[row][col]; }
     public Field getBigField(int row, int col) { return  this.smallMatrix[row][col]; }
 
-    public void setField(int row, int col, Field value)
+    public boolean setField(int row, int col, Field value)
     {
-//        if(matrix[row][col] != Field.Free)
-//            throw new IllegalArgumentException("Want to set second time field");
+//        if(matrix[row][col] != null && matrix[row][col] != Field.Free) {
+//
+////            throw new IllegalArgumentException("Want to set second time field");
+//            return false;
+//        }
 
         if(smallMatrix[row/3][col/3] == Field.X || smallMatrix[row/3][col/3] == Field.Circle)
         {
-            return;
+            return false;
+        }
+
+        if(matrix[row/3][col/3] == Field.X || matrix[row/3][col/3] == Field.Circle)
+        {
+            return false;
         }
 
         matrix[row][col] = value;
@@ -95,6 +103,7 @@ public class Playground {
         }
 
         setBigField(row,col,value);
+        return true;
     }
     public void setBigField(int row, int col, Field value)
     {
@@ -170,7 +179,15 @@ public class Playground {
                 }
             }
         }
+
 //        smallMatrix[row][col] = value;
+    }
+
+    public boolean canMove(int row, int col)
+    {
+        if(matrix[row][col] == Field.Free)
+            return true;
+        else return false;
     }
 
     //    private boolean CheckField(int row, int col,Field matrix[][])

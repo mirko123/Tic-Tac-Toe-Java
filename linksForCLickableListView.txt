@@ -1,0 +1,8 @@
+https://developer.android.com/guide/topics/ui/layout/listview.html
+https://www.youtube.com/results?search_query=print+list+in+android
+https://www.youtube.com/watch?v=A-_hKWMA7mk
+https://www.youtube.com/watch?v=eAPFgC9URqc
+http://stackoverflow.com/questions/13281197/android-how-to-create-clickable-listview
+
+
+
