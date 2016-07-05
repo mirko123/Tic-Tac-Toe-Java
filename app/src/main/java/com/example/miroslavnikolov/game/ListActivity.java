@@ -80,11 +80,11 @@ public class ListActivity extends AppCompatActivity {
 
     public void refreshListWithPlayers()
     {
-        data = networkManager.askForPlayers();
 
         ListView lv = (ListView) findViewById(R.id.listview);
 
         if (lv != null) {
+            data = networkManager.askForPlayers();
             lv.setAdapter(new MyListAdaper(this, R.layout.list_item, data));
         }
 //        lv.setOnItemClickListener(new AdapterView.OnItemClickListener() {
@@ -150,12 +150,13 @@ public class ListActivity extends AppCompatActivity {
             }
 
 
+            final NetworkManager2.PlayerInNetwork player = getItem(position);
 
             mainViewholder = (ViewHolder) convertView.getTag();
             mainViewholder.button.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
-//                    networkManager.askPlayerForGame(player.IP + player.port);
+                    networkManager.askPlayerForGame(player.IP + player.port);
 
                     Toast.makeText(getContext(), "Button was clicked for list item " + position, Toast.LENGTH_SHORT).show();
 //                    networkManager.alertForGame("ddz", getContext());
@@ -164,7 +165,6 @@ public class ListActivity extends AppCompatActivity {
             });
 
 
-            final NetworkManager2.PlayerInNetwork player = getItem(position);
             if(player.isInGame)
             {
                 convertView.setBackgroundColor(Color.RED);

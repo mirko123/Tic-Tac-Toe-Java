@@ -57,6 +57,7 @@ public class NetworkManager2 { //extends Thread {
 
             br = new BufferedReader(new InputStreamReader(socket.getInputStream()));
             out = new PrintWriter(socket.getOutputStream(), true);
+            out.println(this.name);
 
 
             thread = new Thread(new Runnable()
@@ -99,29 +100,68 @@ public class NetworkManager2 { //extends Thread {
 
     public List<PlayerInNetwork> askForPlayers()
     {
-        System.out.println("______0");
+//        System.out.println("______0");
+//
+//        Thread th = Thread.currentThread();
+//        System.out.println("1_ There name: " + th.getName());
+//
 //        try {
 //
+//            System.out.println("2_ There name: " + th.getName());
 //
 //            if(thread.isAlive())
+//            {
+//                System.out.println("3_ There name: " + th.getName());
 //                synchronized (thread)
 //                {
+//                    System.out.println("4_ There name: " + th.getName());
+//                    System.out.println("Thread name: " + thread.getName());
 //                    this.thread.wait();
+//                    System.out.println("5_ There name: " + th.getName());
+//                    this.thread.notify();
+//                    System.out.println("5.1_ There name: " + th.getName());
 //                }
+//                System.out.println("6_ There name: " + th.getName());
+//            }
 //        } catch (InterruptedException e) {
 //            e.printStackTrace();
 //        }
+//        System.out.println("7_ There name: " + th.getName());
+//
+//
+
+
+        System.out.println("NAME:::: " + this.name );
         System.out.println("______0.1");
         this.out.println("return");
         System.out.println("______1");
 
 
+        System.out.println("There state " + thread.getState());
+        System.out.println("There isAlive:  " + thread.isAlive());
+
+        String json;
+
         try {
+//            if( !thread.isAlive() && (json = br.readLine()) != null)
             if(!thread.isAlive())
             {
-                String json = br.readLine();
+                json = br.readLine();
                 updatePlayersFromJSON(json);
             }
+            else
+            {
+
+                synchronized (thread)
+                {
+                    try {
+                        thread.wait();
+                    } catch (InterruptedException e) {
+                        e.printStackTrace();
+                    }
+                }
+            }
+//            else return;
         } catch (IOException e) {
             e.printStackTrace();
         }
@@ -210,6 +250,10 @@ public class NetworkManager2 { //extends Thread {
             if(nextLine.contains("players"))
             {
                 updatePlayersFromJSON(nextLine);
+                synchronized (thread)
+                {
+                    thread.notify();
+                }
             }
             System.out.println(nextLine);
 
