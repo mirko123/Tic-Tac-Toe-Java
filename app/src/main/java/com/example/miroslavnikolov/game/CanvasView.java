@@ -24,7 +24,8 @@ public class CanvasView extends View {
     PlaygroundPrinter printer;
     private static Playground playground;
     private static IPlayer player1;
-    private static NetworkManager networkManager;
+    private static IPlayer player2;
+    private static NetworkManager2 networkManager2;
     float Mx1,My1;
     float x,y;
 
@@ -38,15 +39,26 @@ public class CanvasView extends View {
     GamePlay gamePlay;
     Thread thread;
 
-    public CanvasView(Context context) {
+    public CanvasView(Context context, IPlayer firstPlayer, IPlayer secondPlayer) {
         super(context);
+
+        if(networkManager2 == null)
+        {
+//            NetworkManager2.Init("Miro","88.87.1.226");
+//            NetworkManager2.Init("Miro");
+            networkManager2 = NetworkManager2.getInstance();
+            networkManager2.setContext(getContext());
+        }
 
         mPath = new Path();
         mBitmapPaint = new Paint(Paint.DITHER_FLAG);
         if(playground == null) this.playground = new Playground(9, 9);
-        if(player1 == null) this.player1 = new Player("Miro");
+//        if(player1 == null) this.player1 = new Player(networkManager2.getName());
+//        if(player2 == null) this.player2 = new OtherPlayer();
+        if(player1 == null) this.player1 = firstPlayer;
+        if(player2 == null) this.player2 = secondPlayer;
 
-        GamePlay.Init(playground, player1, this);
+        GamePlay.Init(playground, player1, player2, this);
 
         if(gamePlay == null) gamePlay = GamePlay.getInstance();
         if(thread == null)
@@ -54,11 +66,6 @@ public class CanvasView extends View {
             thread = new Thread(gamePlay);
 //            gamePlay.run();
             thread.start();
-        }
-        if(networkManager == null)
-        {
-            NetworkManager.Init("Miro","88.87.1.226");
-            networkManager = NetworkManager.getInstance();
         }
 
         System.out.println("here 0");
@@ -113,12 +120,14 @@ public class CanvasView extends View {
                 int row = printer.PositionInRow(yPos);
                 int col = printer.PositionInCol(xPos);
 
-                if(row < playground.getRows() && col < playground.getCols())
+                if(row < playground.getRows() && col < playground.getCols() && gamePlay.currentPlayer == gamePlay.firstPlayer)
                 {
                    // playground.setField(row,col, Playground.Field.X);
 
                     GamePlay.Position pos = new GamePlay.Position(row, col);
+
                     player1.setPosition(pos);
+                    networkManager2.sendClickPosition(pos.getRow(), pos.getCol());
                 }
                // gamePlay.run();
 //                gamePlay.notify();
@@ -171,6 +180,7 @@ public class CanvasView extends View {
 //        });
 
 
+        networkManager2.out.println("have Winner");
 
         Toast.makeText(this.getContext(), text,Toast.LENGTH_LONG).show();
 

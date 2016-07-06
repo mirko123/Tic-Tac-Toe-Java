@@ -25,6 +25,7 @@ public class NetworkManager2 { //extends Thread {
     private static NetworkManager2 instance;
     public HashMap<String, PlayerInNetwork> playersInNetwork;
     private String name;
+
     private Context context;
 
 
@@ -35,6 +36,11 @@ public class NetworkManager2 { //extends Thread {
     public BufferedReader br;
     public PrintWriter out;
     public Thread thread;
+    public PlayerInNetwork withInGame;
+
+    public String getName() {
+        return name;
+    }
 
 
 
@@ -240,45 +246,41 @@ public class NetworkManager2 { //extends Thread {
 
             if(nextLine.equals("askForGame"))
             {
-                System.out.println("server askForGame 0");
                 nextLine = br.readLine();
-                System.out.println("server askForGame 1");
                 System.out.println(nextLine);
-                System.out.println("server askForGame 2");
                 PlayerInNetwork player = playersInNetwork.get(nextLine);
 
                 for (String  key : playersInNetwork.keySet()) {
 
                     PlayerInNetwork pl = playersInNetwork.get(key);
 
-                    System.out.println("pl key: " + key);
-                    System.out.println("pl name: " + pl.name);
-                    System.out.println("pl ip: " + pl.IP);
-                    System.out.println("pl port: " + pl.port);
-                    System.out.println(context);
+//                    System.out.println("pl key: " + key);
+//                    System.out.println("pl name: " + pl.name);
+//                    System.out.println("pl ip: " + pl.IP);
+//                    System.out.println("pl port: " + pl.port);
+//                    System.out.println(context);
 
                 }
 
-                System.out.println("server askForGame 3");
-                System.out.println("name: " + player.name);
-                System.out.println("ip: " + player.IP);
-                System.out.println("port: " + player.port);
-                System.out.println(context);
-
+//                System.out.println("server askForGame 3");
+//                System.out.println("name: " + player.name);
+//                System.out.println("ip: " + player.IP);
+//                System.out.println("port: " + player.port);
+//                System.out.println(context);
+                withInGame = player;
                 ((ListActivity)context).alertForGame(player.name, context);
 
-                System.out.println("server askForGame finish");
+//                System.out.println("server askForGame finish");
             }
             if(nextLine.contains("players"))
             {
                 updatePlayersFromJSON(nextLine);
-//                br.s
                 synchronized (thread)
                 {
                     thread.notify();
                 }
             }
-            if(nextLine.contains("answer"))
+            if(nextLine.equals("answer"))
             {
                 synchronized (thread)
                 {
@@ -289,12 +291,19 @@ public class NetworkManager2 { //extends Thread {
                     }
                 }
 
-                System.out.println("answ 1:   ");
                 String answer = br.readLine();
-                System.out.println("answ:   " + answer);
-                System.out.println("answ 2:   ");
             }
-            System.out.println(nextLine);
+            if(nextLine.equals("sendPosition"))
+            {
+                synchronized (thread)
+                {
+                    try {
+                        thread.wait();
+                    } catch (InterruptedException e) {
+                        e.printStackTrace();
+                    }
+                }
+            }
 
             System.out.println("here ____6.1");
         }
@@ -307,15 +316,13 @@ public class NetworkManager2 { //extends Thread {
 
     public void sendClickPosition(int row, int col)
     {
-        String pointInJson = "{ \"point\": { \"row\": \"" + row + "\", \"col\": \"" + col + "\" }";
+        String pointInJson = "{ \"point\": { \"row\": \"" + row + "\", \"col\": \"" + col + "\" }}";
+        this.out.println("sendPosition");
+        this.out.println(pointInJson);
     }
 
     public boolean askPlayerForGame(String ipAndPort)
     {
-        System.out.println("ask player 00: ");
-        System.out.println("current thread: " + Thread.currentThread().getName());
-        System.out.println("thread name: " + thread.getName());
-        System.out.println("ask player 01: ");
 
         boolean accept = false;
 
@@ -336,7 +343,10 @@ public class NetworkManager2 { //extends Thread {
             System.out.println("ask player 3: ");
             System.out.println("ask player 4: " + answer);
             if(answer.equals("true"))
+            {
                 accept = true;
+                withInGame = playersInNetwork.get(ipAndPort);
+            }
         } catch (IOException e) {
             e.printStackTrace();
         }
@@ -348,12 +358,41 @@ public class NetworkManager2 { //extends Thread {
     public void answerForAsk(String answer)
     {
         out.println("answer");
+        if(answer.equals("NO")) withInGame = null;
         out.println(answer);
     }
 
     public GamePlay.Position askForPosition()
     {
         GamePlay.Position position = new GamePlay.Position(0, 0);
+        System.out.println("____ 0");
+
+        this.out.println("askForPosition");
+        System.out.println("____ 1");
+        GamePlay gamePlay = GamePlay.getInstance();
+        System.out.println("____ 2");
+
+
+        synchronized (gamePlay) {
+            gamePlay.notify();
+        }
+        String json = null;
+        try {
+            json = this.br.readLine();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+
+        synchronized (thread)
+        {
+            thread.notify();
+        }
+
+        System.out.println("____ 3");
+        position = Parser.fromJsonToPosition(json);
+        System.out.println("row: " + position.getRow());
+        System.out.println("col: " + position.getCol());
+        System.out.println("____ 4");
 
 //        HashMap<>
         return position;
@@ -377,14 +416,38 @@ public class NetworkManager2 { //extends Thread {
 
     public void runListener()
     {
-
-
-
         if(!thread.isAlive()) thread.start();
     }
 
+    private static class Parser {
+        public static GamePlay.Position fromJsonToPosition(String json) {
 
-    public static class PlayerInNetwork
+            JSONObject obj = null;
+            try {
+                obj = new JSONObject(json);
+                obj = obj.getJSONObject("point");
+            } catch (JSONException e) {
+                e.printStackTrace();
+            }
+            int row = 0;
+            int col = 0;
+
+            try {
+                row = Integer.parseInt(obj.getString("row"));
+                col = Integer.parseInt(obj.getString("col"));
+
+            } catch (JSONException e) {
+                e.printStackTrace();
+            }
+
+            GamePlay.Position position = new GamePlay.Position(row, col);
+
+            return position;
+
+        }
+    }
+
+    public static class PlayerInNetwork // extends OtherPlayer
     {
         public String port;
         public String IP;

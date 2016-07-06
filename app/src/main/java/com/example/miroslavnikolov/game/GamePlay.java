@@ -10,7 +10,7 @@ public class GamePlay implements Runnable {
     private final Playground playground;
     public IPlayer firstPlayer;
     public IPlayer secondPlayer;
-    private IPlayer currentPlayer;
+    public IPlayer currentPlayer;
     private CanvasView canvasView;
 
 
@@ -18,12 +18,14 @@ public class GamePlay implements Runnable {
 
     public static void Init(Playground playground, IPlayer firstPlayer, CanvasView canvasView)
     {
+        System.out.println("FIRST INIT");
         Init(playground,firstPlayer, new Player(Playground.Field.X, "Second Player"), canvasView);
     }
     public static void Init(Playground playground, IPlayer firstPlayer, IPlayer secondPlayer, CanvasView canvasView)
     {
         if(instance == null)
         {
+            System.out.println("SECOND INIT");
             instance = new GamePlay(playground, firstPlayer, secondPlayer, canvasView);
         }
     }
@@ -37,9 +39,12 @@ public class GamePlay implements Runnable {
     {
         this.canvasView = canvasView;
         this.firstPlayer = firstPlayer;
-        this.secondPlayer = new Player(Playground.Field.X, "Second Player");
+        this.secondPlayer = secondPlayer;
+//        this.secondPlayer = new Player(Playground.Field.X, "Second Player");
 //        this.currentPlayer = new Player();
         this.currentPlayer = firstPlayer;
+        if(firstPlayer.GetType() == Playground.Field.X) currentPlayer = firstPlayer;
+        else currentPlayer = secondPlayer;
         this.playground = playground;
 
 
@@ -115,7 +120,7 @@ public class GamePlay implements Runnable {
 
 
 //        IPlayer player = NextPlayer();
-        currentPlayer = NextPlayer();
+//        currentPlayer = NextPlayer();
 
         while(!haveWinner())
         {
@@ -186,7 +191,7 @@ public class GamePlay implements Runnable {
         {
             currentPlayer = firstPlayer;
         }
-
+        System.out.println("NEXT PLAYERRRR: " + currentPlayer.GetType());
 
         return currentPlayer;
     }

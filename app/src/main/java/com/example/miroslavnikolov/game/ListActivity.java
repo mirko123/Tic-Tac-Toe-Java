@@ -129,6 +129,7 @@ public class ListActivity extends AppCompatActivity {
     private class MyListAdaper extends ArrayAdapter<NetworkManager2.PlayerInNetwork> {
         private int layout;
         private List<NetworkManager2.PlayerInNetwork> mObjects;
+
         private MyListAdaper(Context context, int resource, List<NetworkManager2.PlayerInNetwork> objects) {
             super(context, resource, objects);
             mObjects = objects;
@@ -164,7 +165,9 @@ public class ListActivity extends AppCompatActivity {
                     {
                         text += " accept game";
 
-                        CanvasView view = new CanvasView(getContext());
+                        IPlayer player1 = new Player(Playground.Field.X, networkManager.getName());
+                        IPlayer player2 = new OtherPlayer(Playground.Field.Circle, networkManager.withInGame.name);
+                        CanvasView view = new CanvasView(getContext(),player1, player2);
                         view.setBackgroundColor(Color.BLUE);
                         setContentView(view);
                     }
@@ -220,7 +223,11 @@ public class ListActivity extends AppCompatActivity {
 
                         net.answerForAsk("YES");
 
-                        CanvasView view = new CanvasView(context);
+
+                        IPlayer player1 = new Player(Playground.Field.Circle, networkManager.getName());
+                        IPlayer player2 = new OtherPlayer(Playground.Field.X, networkManager.withInGame.name);
+
+                        CanvasView view = new CanvasView(context,player1, player2);
                         view.setBackgroundColor(Color.BLUE);
                         setContentView(view);
 
