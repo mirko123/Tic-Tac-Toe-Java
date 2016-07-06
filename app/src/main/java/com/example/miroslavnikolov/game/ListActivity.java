@@ -156,9 +156,24 @@ public class ListActivity extends AppCompatActivity {
             mainViewholder.button.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
-                    networkManager.askPlayerForGame(player.IP + player.port);
+                    System.out.println("ask 0:");
+                    boolean accept = networkManager.askPlayerForGame(player.IP + player.port);
+                    System.out.println("ask 1:");
+                    String text = player.name;
+                    if(accept)
+                    {
+                        text += " accept game";
 
-                    Toast.makeText(getContext(), "Button was clicked for list item " + position, Toast.LENGTH_SHORT).show();
+                        CanvasView view = new CanvasView(getContext());
+                        view.setBackgroundColor(Color.BLUE);
+                        setContentView(view);
+                    }
+                    else text += " rejects game";
+
+                    Toast.makeText(getContext(), text, Toast.LENGTH_SHORT).show();
+
+
+//                    Toast.makeText(getContext(), "Button was clicked for list item " + position, Toast.LENGTH_SHORT).show();
 //                    networkManager.alertForGame("ddz", getContext());
 
                 }
@@ -184,7 +199,7 @@ public class ListActivity extends AppCompatActivity {
         Button button;
     }
 
-    public static void alertForGame(final String name, final Context context)
+    public void alertForGame(final String name, final Context context)
     {
 
         final NetworkManager2 net = NetworkManager2.getInstance();
@@ -204,6 +219,11 @@ public class ListActivity extends AppCompatActivity {
                         // Do nothing but close the dialog
 
                         net.answerForAsk("YES");
+
+                        CanvasView view = new CanvasView(context);
+                        view.setBackgroundColor(Color.BLUE);
+                        setContentView(view);
+
                         dialog.dismiss();
                     }
                 });

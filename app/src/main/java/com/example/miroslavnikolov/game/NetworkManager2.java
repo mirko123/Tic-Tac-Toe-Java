@@ -43,7 +43,7 @@ public class NetworkManager2 { //extends Thread {
         this.context = context;
         this.name = name;
         host = "88.87.1.226";
-        portNumber = 1337;
+        portNumber = 1336;
 
 
 
@@ -233,27 +233,66 @@ public class NetworkManager2 { //extends Thread {
 
 //            MainActivity.alertForGame("adassha", context);
             System.out.println("here ____6.0");
+            System.out.println("current thread: " + Thread.currentThread().getName());
+            System.out.println("thread name: " + thread.getName());
             nextLine = br.readLine();
-
+            System.out.println("nextline: " + nextLine);
 
             if(nextLine.equals("askForGame"))
             {
-                System.out.println("server askForGame");
+                System.out.println("server askForGame 0");
                 nextLine = br.readLine();
-                System.out.printf(nextLine);
+                System.out.println("server askForGame 1");
+                System.out.println(nextLine);
+                System.out.println("server askForGame 2");
                 PlayerInNetwork player = playersInNetwork.get(nextLine);
 
-                ListActivity.alertForGame(player.name, context);
+                for (String  key : playersInNetwork.keySet()) {
+
+                    PlayerInNetwork pl = playersInNetwork.get(key);
+
+                    System.out.println("pl key: " + key);
+                    System.out.println("pl name: " + pl.name);
+                    System.out.println("pl ip: " + pl.IP);
+                    System.out.println("pl port: " + pl.port);
+                    System.out.println(context);
+
+                }
+
+                System.out.println("server askForGame 3");
+                System.out.println("name: " + player.name);
+                System.out.println("ip: " + player.IP);
+                System.out.println("port: " + player.port);
+                System.out.println(context);
+
+                ((ListActivity)context).alertForGame(player.name, context);
 
                 System.out.println("server askForGame finish");
             }
             if(nextLine.contains("players"))
             {
                 updatePlayersFromJSON(nextLine);
+//                br.s
                 synchronized (thread)
                 {
                     thread.notify();
                 }
+            }
+            if(nextLine.contains("answer"))
+            {
+                synchronized (thread)
+                {
+                    try {
+                        thread.wait();
+                    } catch (InterruptedException e) {
+                        e.printStackTrace();
+                    }
+                }
+
+                System.out.println("answ 1:   ");
+                String answer = br.readLine();
+                System.out.println("answ:   " + answer);
+                System.out.println("answ 2:   ");
             }
             System.out.println(nextLine);
 
@@ -263,7 +302,7 @@ public class NetworkManager2 { //extends Thread {
 
     public void alertForGame(String name, Context con)
     {
-        ListActivity.alertForGame(name, con);
+        ((ListActivity)con).alertForGame(name, con);
     }
 
     public void sendClickPosition(int row, int col)
@@ -273,13 +312,29 @@ public class NetworkManager2 { //extends Thread {
 
     public boolean askPlayerForGame(String ipAndPort)
     {
+        System.out.println("ask player 00: ");
+        System.out.println("current thread: " + Thread.currentThread().getName());
+        System.out.println("thread name: " + thread.getName());
+        System.out.println("ask player 01: ");
+
         boolean accept = false;
 
         this.out.println("askPlayerForGame:");
+        System.out.println("ask player 0: ");
         this.out.println(ipAndPort);
+        System.out.println("ask player 1: ");
 
         try {
+            System.out.println("ask player 2: ");
             String answer = br.readLine();
+            synchronized (thread)
+            {
+                thread.notify();
+            }
+
+
+            System.out.println("ask player 3: ");
+            System.out.println("ask player 4: " + answer);
             if(answer.equals("true"))
                 accept = true;
         } catch (IOException e) {
